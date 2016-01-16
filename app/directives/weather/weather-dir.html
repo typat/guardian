@@ -1,7 +1,20 @@
 <div>
-    {{weather.main.temp}}
+    <h1>{{weather.name}}</h1>
+
+    <a href="" ng-click="cityId=5238685;" class="button">Montpelier</a>
+    <a href="" ng-click="cityId=5234372;" class="button">Burlington</a>
+    <a href="" ng-click="cityId=5243008;" class="button">Williston</a>
+    <br><br>
+
+    {{weather.main.temp | number:0}}&deg;F
+    <br>
+    <img src={{iconSrc}}>
 
     <br><br><br>
 
-    {{forecast | json}}
+    <div ng-repeat="part in forecast.list">
+        {{part.dt_txt}}
+        {{part.main.temp}}
+        <img ng-src="http://openweathermap.org/img/w/{{part.weather[0].icon}}.png">
+    </div>
 </div>
