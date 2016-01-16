@@ -1,0 +1,37 @@
+.chart-container, .chart {
+    width: 900px;
+    height: 400px;
+}
+
+.grid .tick {
+    stroke: lightgrey;
+    opacity: 0.7;
+}
+
+.grid path {
+    stroke-width: 0;
+}
+
+.tick > text {
+    stroke: black;
+    opacity: 1;
+}
+
+body {
+    padding: 10px;
+}
+
+a {
+    cursor: pointer;
+}
+
+.form-control {
+    float: left;
+    margin-right: 10px;
+    width: 70%;
+}
+
+.forecast-img {
+    margin-right: 10px;
+    width: 45px;
+}

@@ -1,20 +1,34 @@
 <div>
     <h1>{{weather.name}}</h1>
 
+
     <a href="" ng-click="cityId=5238685;" class="button">Montpelier</a>
     <a href="" ng-click="cityId=5234372;" class="button">Burlington</a>
     <a href="" ng-click="cityId=5243008;" class="button">Williston</a>
     <br><br>
 
-    {{weather.main.temp | number:0}}&deg;F
-    <br>
-    <img src={{iconSrc}}>
+    <div class="row">
+        <div class="col-md-6">
+            <div class="panel-primary">
+                <div class="panel-heading">
+                    <h4>
+                        <img class="img-thumbnail forecast-img" src={{iconSrc}}>
+                        <strong>{{weather.dt}}</strong>
+                    </h4>
+                </div>
+                <div class="panel-body">
+                    <p>{{ forecast.weather[0].main }}</p>
+                    <p>H: {{ weather.main.temp_max }}° | L: {{ weather.main.temp_min }}°</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--{{forecast}}-->
 
     <br><br><br>
 
-    <div ng-repeat="part in forecast.list">
-        {{part.dt_txt}}
-        {{part.main.temp}}
-        <img ng-src="http://openweathermap.org/img/w/{{part.weather[0].icon}}.png">
+    <div class="chart-container">
+        <linechart data="data" options="options"></linechart>
     </div>
 </div>

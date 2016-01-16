@@ -1,1 +1,1 @@
-var Guardian = angular.module('Guardian', ['ui.router']);
+var Guardian = angular.module('Guardian', ['ui.router', 'n3-line-chart']);

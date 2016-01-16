@@ -7,6 +7,8 @@ angular.module('Guardian')
 
             link: function ($scope, elem, attrs) {
                 $scope.cityId = '5243008';
+                $scope.forecast = {};
+                $scope.forecast.list = [];
 
                 $scope.makeIconSrc = function makeIconSrc(icon) {
                     return makeIconSrc(icon);
@@ -19,6 +21,39 @@ angular.module('Guardian')
 
                 getCurrentWeather($scope, weatherService);
                 getForecast($scope, weatherService);
+
+                $scope.options = {
+                    margin: {top: 5},
+                    series: [
+                        {
+                            axis: "y",
+                            dataset: "dataset",
+                            key: "temp",
+                            color: "hsla(88, 48%, 48%, 1)",
+                            type: ['line', 'dot']
+                        }
+                    ],
+                    axes: {
+                        x: {
+                            key: "dt",
+                            type: "date",
+                            tickFormat: function (value, index) {
+                                return "";
+                            }
+                        },
+                        y: {
+                            min: 0, max: 60,
+                            tickFormat: function (value, index) {
+                                return "";
+                            }
+                        }
+                    },
+                    grid: {
+                        x: true,
+                        y: true
+                    }
+                };
+
             }
         };
     });
@@ -39,5 +74,16 @@ function getForecast($scope, weatherService) {
     var forecast = weatherService.getForecastByCity($scope.cityId);
     forecast.then(function (answer) {
         $scope.forecast = answer.data;
-    })
+
+        var dataset0 = [];
+        for (var i = 0; i < $scope.forecast.list.length; i++) {
+            dataset0.push({
+                dt: new Date($scope.forecast.list[i].dt_txt),
+                temp: $scope.forecast.list[i].main.temp,
+                minTemp: $scope.forecast.list[i].main.temp_min,
+                maxTemp: $scope.forecast.list[i].main.temp_max
+            })
+        }
+        $scope.data = {dataset: dataset0};
+    });
 }
