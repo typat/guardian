@@ -1,12 +1,15 @@
 angular.module('Guardian')
-    .directive('weatherDir', function factory(weatherService) {
+    .directive('weatherDir', function factory(weatherService, $sce) {
         return {
             restrict: 'E',
             replace: 'true',
             templateUrl: 'app/directives/weather/weather-dir.html',
 
             link: function ($scope, elem, attrs) {
+                $scope.homeIconSrc = $sce.trustAsResourceUrl('http://icons.iconarchive.com/icons/alecive/flatwoken/256/Apps-Home-icon.png');
+
                 $scope.cityId = '5243008';
+                $scope.city='Williston';
                 $scope.forecast = {};
                 $scope.forecast.list = [];
 
@@ -65,6 +68,7 @@ function makeIconSrc(icon) {
 function getCurrentWeather($scope, weatherService) {
     var weather = weatherService.getCurrentWeatherByCity($scope.cityId);
     weather.then(function (answer) {
+        answer.data.date = timeConverter(answer.data.dt);
         $scope.weather = answer.data;
         $scope.iconSrc = makeIconSrc(answer.data.weather[0].icon);
     });
@@ -86,4 +90,16 @@ function getForecast($scope, weatherService) {
         }
         $scope.data = {dataset: dataset0};
     });
+}
+
+function timeConverter(UNIX_timestamp){
+    var a = new Date(UNIX_timestamp * 1000);
+    var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    var year = a.getFullYear();
+    var month = months[a.getMonth()];
+    var date = a.getDate();
+    var hour = a.getHours();
+    var min = a.getMinutes();
+    var sec = a.getSeconds();
+    return `${month} ${date}, ${year}`;
 }

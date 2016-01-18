@@ -1,19 +1,20 @@
 <div>
-    <h1>{{weather.name}}</h1>
-
-
-    <a href="" ng-click="cityId=5238685;" class="button">Montpelier</a>
-    <a href="" ng-click="cityId=5234372;" class="button">Burlington</a>
-    <a href="" ng-click="cityId=5243008;" class="button">Williston</a>
-    <br><br>
-
     <div class="row">
-        <div class="col-md-6">
+        <div class="col-sm-offset-10">
+            <a href="/#/">
+                <img ng-src="{{homeIconSrc}}" width="100"/>
+            </a>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-offset-1 col-sm-3">
             <div class="panel-primary">
                 <div class="panel-heading">
                     <h4>
                         <img class="img-thumbnail forecast-img" src={{iconSrc}}>
-                        <strong>{{weather.dt}}</strong>
+                        <strong>{{weather.main.temp}}°F</strong>
+                        <br>
+                        <strong>{{weather.date}}</strong>
                     </h4>
                 </div>
                 <div class="panel-body">
@@ -22,11 +23,21 @@
                 </div>
             </div>
         </div>
+        <div class="col-sm-offset-1 col-sm-4">
+            <h1>{{weather.name}}</h1>
+        </div>
+        <div class="col-sm-2">
+            <div class="btn-group">
+                <label ng-click="cityId=5238685;" ng-model="city" class="btn btn-primary" uib-btn-radio="'Montpelier'">Montpelier</label><br>
+                <label ng-click="cityId=5234372;" ng-model="city" class="btn btn-primary" uib-btn-radio="'Burlington'">Burlington</label><br>
+                <label ng-click="cityId=5243008;" ng-model="city" class="btn btn-primary" uib-btn-radio="'Williston'">Williston</label>
+            </div>
+        </div>
     </div>
 
     <!--{{forecast}}-->
 
-    <br><br><br>
+    <br>
 
     <div class="chart-container">
         <linechart data="data" options="options"></linechart>
