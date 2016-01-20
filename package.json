@@ -1,0 +1,10 @@
+{
+  "spar": {
+    "name": "guardian",
+    "rootPath": "../guardian"
+  },
+  "scripts": {
+    "jenkins-build": "echo \"placeholder for your jenkins-build script\""
+  },
+  "version": "0.0.1-SNAPSHOT"
+}

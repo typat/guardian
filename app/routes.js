@@ -15,4 +15,8 @@ function ($stateProvider, $urlRouterProvider) {
             url: '/weather',
             template: "<weather-dir></weather-dir>"
         })
+        .state('test', {
+            url: '/test',
+            template: "<test-dir></test-dir>"
+        })
 }]);
