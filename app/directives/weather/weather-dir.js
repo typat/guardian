@@ -16,6 +16,11 @@ angular.module('Guardian')
                     return makeIconSrc(icon);
                 };
 
+                $scope.$watch('cityId', function () {
+                    getCurrentWeather($scope, weatherService);
+                    getForecast($scope, weatherService);
+                });
+
                 getCurrentWeather($scope, weatherService);
                 var forecast = getForecast($scope, weatherService);
                 forecast.then(function () {
@@ -41,9 +46,7 @@ angular.module('Guardian')
                             $scope.render($scope.data);
                         });
 
-                        $scope.$watch('cityId', function () {
-                            getCurrentWeather($scope, weatherService);
-                            getForecast($scope, weatherService);
+                        $scope.$watch('data', function () {
                             $scope.render($scope.data);
                         });
 
@@ -53,8 +56,11 @@ angular.module('Guardian')
 
                             if (!data) return;
 
+                            //var x = d3.scale.ordinal().rangeRoundBands([50, d3.select(elem[0]).node().offsetWidth], .1);
+                            //var y = d3.scale.linear().rangeRound([480, 20]);
+
                             var vis = d3.select('#visualisation'),
-                                WIDTH = d3.select(elem[0]).node().offsetWidth,
+                                WIDTH = d3.select(elem[0]).node().offsetWidth - 40,
                                 HEIGHT = 500,
                                 MARGINS = {
                                     top: 20,
@@ -62,45 +68,152 @@ angular.module('Guardian')
                                     bottom: 20,
                                     left: 50
                                 },
-                                xRange = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min($scope.data, function (d) {
+                                xTimeScale = d3.time.scale().range([MARGINS.left, WIDTH - MARGINS.right]).domain([d3.min($scope.data, function (d) {
                                     return d.dt;
                                 }), d3.max($scope.data, function (d) {
                                     return d.dt;
                                 })]),
-                                yRange = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min($scope.data, function (d) {
+                                xCardinalScale = d3.scale.ordinal().rangeRoundBands([MARGINS.left, WIDTH - MARGINS.right], .1).domain(data.map(function (d) {
+                                    return d.dt;
+                                })),
+                                ySnowScale = d3.scale.linear().rangeRound([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([0, d3.max(data, function (d) {
+                                    return d.snow;
+                                })]),
+                                yTempScale = d3.scale.linear().range([HEIGHT - MARGINS.top, MARGINS.bottom]).domain([d3.min($scope.data, function (d) {
                                     return d.temp;
                                 }), d3.max($scope.data, function (d) {
                                     return d.temp;
                                 })]),
                                 xAxis = d3.svg.axis()
-                                    .scale(xRange)
+                                    .scale(xTimeScale)
                                     .tickSize(3)
-                                    .tickSubdivide(true),
+                                    .tickSubdivide(true)
+                                    .ticks(5),
                                 yAxis = d3.svg.axis()
-                                    .scale(yRange)
+                                    .scale(yTempScale)
                                     .tickSize(3)
                                     .orient('left')
+                                    .tickSubdivide(true),
+                                ySnowAxis = d3.svg.axis()
+                                    .scale(ySnowScale)
+                                    .orient('right')
+                                    .tickSize(3)
                                     .tickSubdivide(true);
 
                             vis.append('svg:g')
                                 .attr('class', 'x axis')
                                 .attr('transform', 'translate(0,' + (HEIGHT - MARGINS.bottom) + ')')
+                                .transition()
                                 .call(xAxis);
 
                             vis.append('svg:g')
                                 .attr('class', 'y axis')
                                 .attr('transform', 'translate(' + (MARGINS.left) + ',0)')
+                                .transition()
                                 .call(yAxis);
+
+                            vis.append('svg:g')
+                                .attr("class", "y axis")
+                                .attr("transform", "translate(" + (WIDTH - MARGINS.right) + ",0)")
+                                .transition()
+                                .call(ySnowAxis);
+
+                            function make_x_axis() {
+                                return d3.svg.axis()
+                                    .scale(xTimeScale)
+                                    .orient("bottom")
+                                    .ticks(5)
+                            }
+
+                            function make_y_axis() {
+                                return d3.svg.axis()
+                                    .scale(yTempScale)
+                                    .orient("left")
+                                    .ticks(5)
+                            }
+
+                            // Draw the x Grid lines
+                            vis.append("g")
+                                .attr("class", "grid")
+                                .attr("transform", "translate(0," + HEIGHT + ")")
+                                .call(make_x_axis()
+                                    .tickSize(-HEIGHT, 0, 0)
+                                    .tickFormat("")
+                                );
+
+                            // Draw the y Grid lines
+                            vis.append("g")
+                                .attr("class", "grid")
+                                .call(make_y_axis()
+                                    .tickSize(-WIDTH, 0, 0)
+                                    .tickFormat("")
+                                );
+
+                            // Add the text label for the X axis
+                            vis.append("text")
+                                .attr("transform", "translate(" + (WIDTH / 2) + " ," + (HEIGHT + MARGINS.bottom) + ")")
+                                .style("text-anchor", "middle")
+                                .text("Date");
+
+                            // Add the text label for the Y axis
+                            vis.append("text")
+                                .attr("transform", "rotate(-90)")
+                                .attr("y", 6)
+                                .attr("x", MARGINS.top - (HEIGHT / 2))
+                                .attr("dy", ".71em")
+                                .style("text-anchor", "end")
+                                .text("Temp");
+
+                            // Add the text label for the Y2 axis
+                            vis.append("text")
+                                .attr("transform", "rotate(-90)")
+                                .attr("y", WIDTH)
+                                .attr("x", MARGINS.top - (HEIGHT / 2))
+                                .attr("dy", "1.90em")
+                                .style("text-anchor", "end")
+                                .text("Precipitation (ft)");
+
+                            vis.append('defs')
+                                .append('pattern')
+                                .attr('id', 'diagonalHatch')
+                                .attr('patternUnits', 'userSpaceOnUse')
+                                .attr('width', 20)
+                                .attr('height', 20)
+                                .append('svg:image')
+                                .attr("xlink:href", "http://cdn.mysitemyway.com/etc-mysitemyway/icons/legacy-previews/icons-256/blue-tiedyed-cloth-icons-natural-wonders/050677-blue-tiedyed-cloth-icon-natural-wonders-snowflake1.png")
+                                .attr("width", 30)
+                                .attr("height", 30)
+                                .attr("x", -10)
+                                .attr("y", -10);
+
+                            //add snow bars to graph
+                            vis.selectAll(".bar")
+                                .data($scope.data)
+                                .enter().append("rect")
+                                .attr("class", "bar")
+                                .attr("x", function (d) {
+                                    return xCardinalScale(d.dt);
+                                })
+                                .attr("width", xCardinalScale.rangeBand())
+                                .attr("y", function (d) {
+                                    return ySnowScale(d.snow);
+                                })
+                                .attr("height", function (d) {
+                                    return HEIGHT - ySnowScale(d.snow) - MARGINS.bottom;
+                                })
+                                .style('fill', 'url(#diagonalHatch)')
+                                .style("stroke", "lightblue");
 
                             var lineFunc = d3.svg.line()
                                 .x(function (d) {
-                                    return xRange(d.dt);
+                                    return xTimeScale(d.dt);
                                 })
                                 .y(function (d) {
-                                    return yRange(d.temp);
+                                    return yTempScale(d.temp);
                                 })
-                                .interpolate('basis');
+                                .interpolate('monotone');
 
+                            //add temperature line to graph
                             vis.append('svg:path')
                                 .attr('d', lineFunc($scope.data))
                                 .attr('stroke', 'blue')
